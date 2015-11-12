@@ -9,7 +9,7 @@ MyGLWidget::MyGLWidget (QGLFormat &f, QWidget* parent) : QGLWidget(f, parent)
   xClick = yClick = 0;
   angleY = 0.0;
   DoingInteractive = NONE;
-  radiEsc = sqrt(3);
+  radiEsc = sqrt(8);
 }
 
 void MyGLWidget::initializeGL ()
@@ -48,6 +48,14 @@ void MyGLWidget::paintGL ()
   // Pintem l'escena
   glDrawArrays(GL_TRIANGLES, 0, patr.faces().size()*3);
   
+  // Activem el VAO per a pintar el Patricio
+  glBindVertexArray (VAO_Patr2);
+
+  modelTransformPatricio2();
+
+  // Pintem l'escena
+  glDrawArrays(GL_TRIANGLES, 0, patr2.faces().size()*3);
+  
   glBindVertexArray(0);
 }
 
@@ -61,6 +69,7 @@ void MyGLWidget::createBuffers ()
   // Carreguem el model de l'OBJ - Atenció! Abans de crear els buffers!
   //patr.load("/assig/idi/models/Patricio.obj");
   patr.load("./models/Patricio.obj");
+   patr2.load("./models/Patricio.obj");
 
   // Calculem la capsa contenidora del model
   calculaCapsaModel ();
@@ -120,6 +129,65 @@ void MyGLWidget::createBuffers ()
   glVertexAttribPointer(matshinLoc, 1, GL_FLOAT, GL_FALSE, 0, 0);
   glEnableVertexAttribArray(matshinLoc);
 
+  
+  
+  ////Segundo Patricio
+  
+  // Creació del Vertex Array Object del Patricio
+  glGenVertexArrays(1, &VAO_Patr2);
+  glBindVertexArray(VAO_Patr2);
+
+  // Creació dels buffers del model patr
+  // Buffer de posicions
+  glGenBuffers(1, &VBO_PatrPos2);
+  glBindBuffer(GL_ARRAY_BUFFER, VBO_PatrPos2);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*patr2.faces().size()*3*3, patr2.VBO_vertices(), GL_STATIC_DRAW);
+
+  // Activem l'atribut vertexLoc
+  glVertexAttribPointer(vertexLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  glEnableVertexAttribArray(vertexLoc);
+
+  // Buffer de normals
+  glGenBuffers(1, &VBO_PatrNorm2);
+  glBindBuffer(GL_ARRAY_BUFFER, VBO_PatrNorm2);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*patr2.faces().size()*3*3, patr2.VBO_normals(), GL_STATIC_DRAW);
+
+  glVertexAttribPointer(normalLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  glEnableVertexAttribArray(normalLoc);
+
+  // En lloc del color, ara passem tots els paràmetres dels materials
+  // Buffer de component ambient
+  glGenBuffers(1, &VBO_PatrMatamb2);
+  glBindBuffer(GL_ARRAY_BUFFER, VBO_PatrMatamb2);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*patr2.faces().size()*3*3, patr2.VBO_matamb(), GL_STATIC_DRAW);
+
+  glVertexAttribPointer(matambLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  glEnableVertexAttribArray(matambLoc);
+
+  // Buffer de component difusa
+  glGenBuffers(1, &VBO_PatrMatdiff2);
+  glBindBuffer(GL_ARRAY_BUFFER, VBO_PatrMatdiff2);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*patr2.faces().size()*3*3, patr2.VBO_matdiff(), GL_STATIC_DRAW);
+
+  glVertexAttribPointer(matdiffLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  glEnableVertexAttribArray(matdiffLoc);
+
+  // Buffer de component especular
+  glGenBuffers(1, &VBO_PatrMatspec2);
+  glBindBuffer(GL_ARRAY_BUFFER, VBO_PatrMatspec2);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*patr2.faces().size()*3*3, patr2.VBO_matspec(), GL_STATIC_DRAW);
+
+  glVertexAttribPointer(matspecLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  glEnableVertexAttribArray(matspecLoc);
+
+  // Buffer de component shininness
+  glGenBuffers(1, &VBO_PatrMatshin2);
+  glBindBuffer(GL_ARRAY_BUFFER, VBO_PatrMatshin2);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*patr2.faces().size()*3, patr2.VBO_matshin(), GL_STATIC_DRAW);
+
+  glVertexAttribPointer(matshinLoc, 1, GL_FLOAT, GL_FALSE, 0, 0);
+  glEnableVertexAttribArray(matshinLoc);
+  
   // Dades del terra
   // VBO amb la posició dels vèrtexs
   glm::vec3 posterra[12] = {
@@ -270,6 +338,17 @@ void MyGLWidget::modelTransformPatricio ()
   glUniformMatrix4fv (transLoc, 1, GL_FALSE, &TG[0][0]);
 }
 
+void MyGLWidget::modelTransformPatricio2 ()
+{
+  glm::mat4 TG;  // Matriu de transformació
+  TG = glm::translate(TG, glm::vec3(0,hpat*escala,0));
+  TG = glm::scale(TG, glm::vec3(escala, escala, escala));
+  TG = glm::rotate(TG,(float)M_PI,glm::vec3(0,0,1));
+  TG = glm::translate(TG, -centrePatr);
+  
+  glUniformMatrix4fv (transLoc, 1, GL_FALSE, &TG[0][0]);
+}
+
 void MyGLWidget::modelTransformTerra ()
 {
   glm::mat4 TG;  // Matriu de transformació
@@ -317,6 +396,7 @@ void MyGLWidget::calculaCapsaModel ()
     if (patr.vertices()[i+2] > maxz)
       maxz = patr.vertices()[i+2];
   }
+  hpat=maxy-miny;
   escala = 2.0/(maxy-miny);
   centrePatr[0] = (minx+maxx)/2.0; centrePatr[1] = (miny+maxy)/2.0; centrePatr[2] = (minz+maxz)/2.0;
 }

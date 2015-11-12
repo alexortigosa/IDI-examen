@@ -56,6 +56,15 @@ vec3 Phong (vec3 NormSCO, vec3 L, vec4 vertSCO)
 
 void main()
 {	
-    fcolor = matdiff;
+    //fcolor = matdiff;
+    vec4 posVertSCO = view*TG*vec4(vertex,1.0);
+    //vec4 posF = view*vec4(posFocus,1.0); **En cordenadas de escena***
+    //Si no multiplacamos por VW, tenemos el punto de luz situado en camera
+    vec4 posF = vec4(posFocus,1.0);
+    vec4 L = posF - posVertSCO;
+    mat3 NormalMatrix = inverse (transpose (mat3 (view * TG)));
+    vec3 normalSCO = NormalMatrix*normal;
+    //fcolor=Lambert(normalize(N),normalize(L.xyz));
+    fcolor=Phong(normalize(normalSCO),normalize(L).xyz,posVertSCO);
     gl_Position = proj * view * TG * vec4 (vertex, 1.0);
 }
