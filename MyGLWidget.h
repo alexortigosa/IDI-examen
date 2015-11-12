@@ -43,13 +43,14 @@ class MyGLWidget : public QGLWidget
     void modelTransformPatricio ();
     void modelTransformPatricio2 ();
     void calculaCapsaModel ();
-
+    void calculaCapsaModelCow ();
     // VAO i VBO names
     GLuint VAO_Patr, VBO_PatrPos, VBO_PatrNorm, VBO_PatrMatamb, VBO_PatrMatdiff, VBO_PatrMatspec, VBO_PatrMatshin;
      GLuint VAO_Patr2, VBO_PatrPos2, VBO_PatrNorm2, VBO_PatrMatamb2, VBO_PatrMatdiff2, VBO_PatrMatspec2, VBO_PatrMatshin2;
     GLuint VAO_Terra, VBO_TerraPos, VBO_TerraNorm, VBO_TerraMatamb, VBO_TerraMatdiff, VBO_TerraMatspec, VBO_TerraMatshin;
     QGLShaderProgram *program;
     GLuint hpat;
+    GLuint hcow;
 
     GLuint transLoc, projLoc, viewLoc;
     GLuint vertexLoc, normalLoc, matambLoc, matdiffLoc, matspecLoc, matshinLoc;
@@ -57,8 +58,10 @@ class MyGLWidget : public QGLWidget
     Model patr2;
     // paràmetres calculats a partir de la capsa contenidora del model
     glm::vec3 centrePatr;
-    glm::vec3 centrePatr2;
+    glm::vec3 centreCow;
     float escala;
+    float escalacow;
+    
     double radiEsc;
 
     typedef  enum {NONE, ROTATE} InteractiveAction;
